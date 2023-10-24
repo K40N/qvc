@@ -33,10 +33,22 @@ class ChunkEncoder:
         # Return our chosen box
         return chosen_box
 
+    def sa_initial_state(self) -> Box:
+        return ...
+    
+    def sa_neighbor_of(self, state: Box) -> Box:
+        return ...
+    
+    def sa_energy(self, state: Box) -> Box:
+        return ...
+
     def sa_p_function(self, e_now: float, e_canidate: float, temp: int) -> float:
-        delta_e = e_canidate - e_now
+        delta_e = e_now - e_canidate
         unbounded_result = exp(-delta_e / temp)
         return min(unbounded_result, 1.0)
 
     def sa_temperature(self, iteration: int): float:
-        return ...
+        return SA_TEMP_MAX - (iteration * SA_TEMP_ALPHA)
+    
+    SA_TEMP_MAX = 10.0
+    SA_TEMP_ALPHA = 0.2
