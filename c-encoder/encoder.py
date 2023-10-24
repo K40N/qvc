@@ -1,6 +1,7 @@
 import numpy as np
 
-from math import exp
+from math import exp, log2, log10
+import random
 
 from box import Box
 
@@ -34,13 +35,29 @@ class ChunkEncoder:
         return chosen_box
 
     def sa_initial_state(self) -> Box:
-        return ...
+        x_size, y_size, t_size = self.xyt_volume.shape
+        cx, cy, ct = (x_size // 2), (y_size // 2), (t_size // 2)
+        qx, qy, qt = (x_size // 4), (y_size // 4), (t_size // 4)
+        return Box(
+            cx - qx, cy - qy, ct - qt,
+            int(log2(cx)), int(log2(cy)), int(log2(ct)),
+        )
     
     def sa_neighbor_of(self, state: Box) -> Box:
-        return ...
+        change = [random.choice([-1, 1]), *(0 for _ in range(5))]
+        random.shuffle(change)
+        return Box(
+            state.x + change[0], state.y + change[1], state.t + change[2],
+            state.log2_w + change[3], state.log2_h + change[4], state.log2_d + change[5],
+        )
     
     def sa_energy(self, state: Box) -> Box:
-        return ...
+        count = 0
+        for x, y, t in state.member_coords():
+            if self.xyt_volume[x, y, t]:
+                count += 1
+        not_found = sum(self.xyt_volume.shape) - count
+        return math.log10(not_found)
 
     def sa_p_function(self, e_now: float, e_canidate: float, temp: int) -> float:
         delta_e = e_now - e_canidate
