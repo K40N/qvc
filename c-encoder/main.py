@@ -1,12 +1,19 @@
 import cv2
 import numpy as np
 
+from box import Box
+from encoder import ChunkEncoder
+
+from dataclasses import dataclass
+
 CHUNK_TIME = 16 # Frames per chunk
 WIDTH = 32
 HEIGHT = 32
+BOXES_PER_CHUNK = 16
 FRAMES_PATH = lambda n: f"media_frames/bad-apple/frame-{n}.jpg"
+N_CHUNKS = 14
 
-def get_chunk_array(chunk_i: int):
+def get_chunk_array(chunk_i: int) -> np.array:
     frames = []
     start = chunk_i * CHUNK_TIME
     for i in range(start, start + CHUNK_TIME):
@@ -20,4 +27,19 @@ def get_chunk_array(chunk_i: int):
             assert result[x,y,t] == frames[t][x,y]
     return result
 
-print(get_chunk_array(6))
+@dataclass(frozen=True)
+class EncodedChunk:
+    boxes: list[Box]
+
+def encode_chunk(chunk_i: int) -> EncodedChunk:
+    print(f"Chunk #{chunk_i+1:03}/{N_CHUNKS:03}: ", end="")
+    encoder = ChunkEncoder(get_chunk_array(chunk_i))
+    print(f"{chunk_i*100/(N_CHUNKS-1):>5.1f}% [", end="")
+    boxes = []
+    for _ in range(BOXES_PER_CHUNK):
+        print("#", end="")
+        boxes.append(encoder.emit_box())
+    print("]")
+    return EncodedChunk(boxes)
+
+encoded = [ encode_chunk(chunk_i) for chunk_i in range(N_CHUNKS) ]
