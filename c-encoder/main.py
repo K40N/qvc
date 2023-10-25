@@ -45,7 +45,10 @@ def encode_chunk(chunk_i: int) -> EncodedChunk:
     return EncodedChunk(boxes)
 
 print("Encoding...")
-encoded = [ encode_chunk(chunk_i) for chunk_i in range(N_CHUNKS) ]
+encoded = [
+    [ repr(box) for box in encode_chunk(chunk_i).boxes ]
+    for chunk_i in range(N_CHUNKS)
+]
 print("Saving...")
 with open(f"encoded_{VIDEO_NAME}.pkl", "wb+") as f:
     pkl.dump(encoded, f)

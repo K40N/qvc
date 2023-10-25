@@ -9,7 +9,8 @@ from constants import *
 
 def decode_chunk_classical(chunk: EncodedChunk) -> list[np.array]:
     frames = [ np.zeros((WIDTH, HEIGHT), dtype=np.uint8) for _ in range(CHUNK_TIME) ]
-    for box in chunk.boxes:
+    for box_repr in chunk:
+        box = eval(box_repr) # YES THIS IS STUPID I AM AWARE ITS 午前零時半 SORRY LOL
         for x, y, t in box.member_coords():
             frames[t][x, y] = 255
     return frames
