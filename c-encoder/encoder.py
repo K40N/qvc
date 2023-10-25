@@ -29,7 +29,9 @@ class ChunkEncoder:
                         # Dim: X
                         log2_px, done = 0, False
                         while not done:
-                            if self.xyt_volume[x + (1 << log2_px),y,t]:
+                            pos = self.xyt_volume[x + (1 << log2_px),y,t]
+                            neg = self.xyt_volume[x - (1 << log2_px),y,t]
+                            if pos and neg:
                                 log2_px += 1
                             else:
                                 log2_px = max(0, log2_px - 1)
@@ -37,7 +39,9 @@ class ChunkEncoder:
                         # Dim: Y
                         log2_py, done = 0, False
                         while not done:
-                            if self.xyt_volume[x,y + (1 << log2_py),t]:
+                            pos = self.xyt_volume[x,y + (1 << log2_py),t]
+                            neg = self.xyt_volume[x,y - (1 << log2_py),t]
+                            if pos and neg:
                                 log2_py += 1
                             else:
                                 log2_py = max(0, log2_py - 1)
@@ -45,8 +49,19 @@ class ChunkEncoder:
                         # Dim: T
                         log2_pt, done = 0, False
                         while not done:
-                            if self.xyt_volume[x,y,t + (1 << log2_pt)]:
+                            pos = self.xyt_volume[x,y,t + (1 << log2_pt)]
+                            neg = self.xyt_volume[x,y,t - (1 << log2_pt)]
+                            if pos and neg:
                                 log2_pt += 1
                             else:
                                 log2_pt = max(0, log2_pt - 1)
                                 done = True
+                        # Check if best
+                        canidate_box = Box(
+                            x, y, t, log2_px, log2_py, log2_pt,
+                        )
+                        canidate_vol = canidate_box.volume()
+                        if canidate_vol > best_vol:
+                            best_box = canidate_box
+                            best_vol = canidate_vol
+        return best_box
