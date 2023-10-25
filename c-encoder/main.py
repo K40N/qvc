@@ -5,14 +5,18 @@ from box import Box
 from encoder import ChunkEncoder
 
 from dataclasses import dataclass
+import pickle as pkl
 import sys
 
 CHUNK_TIME = 16 # Frames per chunk
 WIDTH = 32
 HEIGHT = 32
 BOXES_PER_CHUNK = 16
-FRAMES_PATH = lambda n: f"media_frames/bad-apple/frame-{n}.jpg"
 N_CHUNKS = 14
+
+VIDEO_NAME = "bad-apple"
+
+FRAMES_PATH = lambda n: f"media_frames/{VIDEO_NAME}/frame-{n}.jpg"
 
 def get_chunk_array(chunk_i: int) -> np.array:
     frames = []
@@ -46,4 +50,9 @@ def encode_chunk(chunk_i: int) -> EncodedChunk:
     print("]")
     return EncodedChunk(boxes)
 
+print("Encoding...")
 encoded = [ encode_chunk(chunk_i) for chunk_i in range(N_CHUNKS) ]
+print("Saving...")
+with open(f"encoded_{VIDEO_NAME}.pkl", "wb+") as f:
+    pkl.dump(encoded, f)
+print("All done.")
