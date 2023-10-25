@@ -36,7 +36,7 @@ class Box:
             yield x + i
     
     def volume(self) -> int:
-        return (2**self.log2_w) + (2**self.log2_h) + (2**self.log2_d)
+        return (1 << self.log2_w) + (1 << self.log2_h) + (1 << self.log2_d)
     
     def contains_point(self, qx: int, qy: int, qt: int):
         x_ok = ((qx - self.x) >= 0) and ((qx - self.x) <= (1 << self.log2_w))
