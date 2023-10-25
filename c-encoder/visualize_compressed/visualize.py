@@ -5,11 +5,7 @@ from box import Box, EncodedChunk
 
 import pickle as pkl
 
-CHUNK_TIME = 16 # Frames per chunk
-WIDTH = 32
-HEIGHT = 32
-
-VIDEO_NAME = "bad-apple"
+from constants import *
 
 def decode_chunk_classical(chunk: EncodedChunk) -> list[np.array]:
     frames = [ np.zeros((WIDTH, HEIGHT), dtype=np.uint8) for _ in range(CHUNK_TIME) ]

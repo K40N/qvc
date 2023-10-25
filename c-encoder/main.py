@@ -8,13 +8,9 @@ from dataclasses import dataclass
 import pickle as pkl
 import sys
 
-CHUNK_TIME = 16 # Frames per chunk
-WIDTH = 32
-HEIGHT = 32
-BOXES_PER_CHUNK = 16
-N_CHUNKS = 14
+from constants import *
 
-VIDEO_NAME = "bad-apple"
+N_CHUNKS = (7 * LEN_SECONDS) // CHUNK_TIME
 
 FRAMES_PATH = lambda n: f"media_frames/{VIDEO_NAME}/frame-{n}.jpg"
 
@@ -24,6 +20,8 @@ def get_chunk_array(chunk_i: int) -> np.array:
     for i in range(start, start + CHUNK_TIME):
         rgb = cv2.imread(FRAMES_PATH(i))
         img = rgb[:,:,0] > (255//2)
+        if img.sum() > ((WIDTH*HEIGHT)//2):
+            img ^= True
         frames.append(img.reshape(WIDTH, HEIGHT, 1))
     result = np.concatenate(frames, axis=2)
     t = CHUNK_TIME // 3

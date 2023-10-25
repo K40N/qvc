@@ -29,8 +29,13 @@ class ChunkEncoder:
                         # Dim: X
                         log2_px, done = 0, False
                         while not done:
-                            pos = self.xyt_volume[x + (1 << log2_px),y,t]
-                            neg = self.xyt_volume[x - (1 << log2_px),y,t]
+                            try:
+                                pos = self.xyt_volume[x + (1 << log2_px),y,t]
+                                neg = self.xyt_volume[x - (1 << log2_px),y,t]
+                            except IndexError:
+                                log2_px = max(0, log2_px - 1)
+                                done = True
+                                break
                             if pos and neg:
                                 log2_px += 1
                             else:
@@ -39,8 +44,13 @@ class ChunkEncoder:
                         # Dim: Y
                         log2_py, done = 0, False
                         while not done:
-                            pos = self.xyt_volume[x,y + (1 << log2_py),t]
-                            neg = self.xyt_volume[x,y - (1 << log2_py),t]
+                            try:
+                                pos = self.xyt_volume[x,y + (1 << log2_py),t]
+                                neg = self.xyt_volume[x,y - (1 << log2_py),t]
+                            except IndexError:
+                                log2_py = max(0, log2_py - 1)
+                                done = True
+                                break
                             if pos and neg:
                                 log2_py += 1
                             else:
@@ -49,8 +59,13 @@ class ChunkEncoder:
                         # Dim: T
                         log2_pt, done = 0, False
                         while not done:
-                            pos = self.xyt_volume[x,y,t + (1 << log2_pt)]
-                            neg = self.xyt_volume[x,y,t - (1 << log2_pt)]
+                            try:
+                                pos = self.xyt_volume[x,y,t + (1 << log2_pt)]
+                                neg = self.xyt_volume[x,y,t - (1 << log2_pt)]
+                            except IndexError:
+                                log2_pt = max(0, log2_pt - 1)
+                                done = True
+                                break
                             if pos and neg:
                                 log2_pt += 1
                             else:
