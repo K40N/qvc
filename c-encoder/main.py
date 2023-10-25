@@ -20,8 +20,8 @@ def get_chunk_array(chunk_i: int) -> np.array:
     for i in range(start, start + CHUNK_TIME):
         rgb = cv2.imread(FRAMES_PATH(i))
         img = rgb[:,:,0] > (255//2)
-        if img.sum() > ((WIDTH*HEIGHT)//2):
-            img ^= True
+        #if img.sum() > ((WIDTH*HEIGHT)//2):
+        #    img ^= True
         frames.append(img.reshape(WIDTH, HEIGHT, 1))
     result = np.concatenate(frames, axis=2)
     t = CHUNK_TIME // 3
