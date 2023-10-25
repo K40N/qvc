@@ -53,14 +53,19 @@ class ChunkEncoder:
         return box.ensure_within(self.xyt_volume.shape)
     
     def sa_energy(self, state: Box) -> Box:
-        count = 0
+        count, volume = 0, 0
         for x, y, t in state.member_coords():
             if self.xyt_volume[x, y, t]:
                 count += 1
+            volume += 1
         x_size, y_size, t_size = self.xyt_volume.shape
-        max_count = x_size * y_size * t_size
-        not_found = (max_count - count) / max_count
-        return not_found
+        max_volume = x_size * y_size * t_size
+        proportion_within = count / volume
+        proportion_volume = volume / max_volume
+        assert proportion_within <= 1.0
+        assert proportion_volume <= 1.0
+        proportion_combined = (proportion_within + proportion_volume) / 2
+        return 1.0 - proportion_combined
 
     def sa_p_function(self, e_now: float, e_canidate: float, temp: int) -> float:
         delta_e = e_now - e_canidate
