@@ -1,6 +1,6 @@
 CHUNK_TIME = 8 # Frames per chunk
-WIDTH = 32
-HEIGHT = 32
+WIDTH = 16
+HEIGHT = 16
 BOXES_PER_CHUNK = 8
 LEN_SECONDS = 32
 
