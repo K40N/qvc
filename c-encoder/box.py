@@ -50,3 +50,7 @@ def box_union_contains_point(box_union_of: list[Box], xyt: (int, int, int)):
         if box.contains_point(x, y, t):
             return True
     return False
+
+@dataclass(frozen=True)
+class EncodedChunk:
+    boxes: list[Box]

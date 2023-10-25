@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from box import Box
+from box import Box, EncodedChunk
 from encoder import ChunkEncoder
 
 from dataclasses import dataclass
@@ -31,10 +31,6 @@ def get_chunk_array(chunk_i: int) -> np.array:
         for y in range(HEIGHT // 2):
             assert result[x,y,t] == frames[t][x,y]
     return result
-
-@dataclass(frozen=True)
-class EncodedChunk:
-    boxes: list[Box]
 
 def encode_chunk(chunk_i: int) -> EncodedChunk:
     print(f"Chunk #{chunk_i+1:03}/{N_CHUNKS:03}: ", end="")
