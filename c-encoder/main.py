@@ -5,6 +5,7 @@ from box import Box
 from encoder import ChunkEncoder
 
 from dataclasses import dataclass
+import sys
 
 CHUNK_TIME = 16 # Frames per chunk
 WIDTH = 32
@@ -33,11 +34,14 @@ class EncodedChunk:
 
 def encode_chunk(chunk_i: int) -> EncodedChunk:
     print(f"Chunk #{chunk_i+1:03}/{N_CHUNKS:03}: ", end="")
+    sys.stdout.flush()
     encoder = ChunkEncoder(get_chunk_array(chunk_i))
     print(f"{chunk_i*100/(N_CHUNKS-1):>5.1f}% [", end="")
+    sys.stdout.flush()
     boxes = []
     for _ in range(BOXES_PER_CHUNK):
         print("#", end="")
+        sys.stdout.flush()
         boxes.append(encoder.emit_box())
     print("]")
     return EncodedChunk(boxes)
