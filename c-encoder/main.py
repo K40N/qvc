@@ -11,7 +11,7 @@ import sys
 CHUNK_TIME = 16 # Frames per chunk
 WIDTH = 32
 HEIGHT = 32
-BOXES_PER_CHUNK = 16
+BOXES_PER_CHUNK = 256
 N_CHUNKS = 14
 
 VIDEO_NAME = "bad-apple"
