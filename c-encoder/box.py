@@ -2,54 +2,60 @@ from dataclasses import dataclass
 from math import log2
 import typing
 
+import numpy as np
+
+from constants import XYT_BITS
+
+@dataclass(frozen=True)
+class BoxCfg:
+    var: tuple[int, int, int]
+
+    def volume(self) -> int:
+        return (1 << self.var[0]) * (1 << self.var[1]) * (1 << self.var[2])
+
+    def possible_boxes(self) -> typing.Generator["Box", None, None]:
+        for fixed_x in range(0, 1 << (XYT_BITS[0] - self.var[0])):
+            for fixed_y in range(0, 1 << (XYT_BITS[1] - self.var[1])):
+                for fixed_t in range(0, 1 << (XYT_BITS[2] - self.var[2])):
+                    yield Box(
+                        (fixed_x, fixed_y, fixed_t),
+                        self,
+                    )
+
+    @classmethod
+    def subdivided(cls, box_cfgs: list["BoxCfg"]) -> typing.Generator["BoxCfg", None, None]:
+        seen = set()
+        for cfg in box_cfgs:
+            if (cfg.var[0] % 2) == 0:
+                opt = BoxCfg((cfg.var[0] // 2, cfg.var[1], cfg.var[2]))
+                if opt not in seen:
+                    yield opt
+                    seen.add(opt)
+            if (cfg.var[1] % 2) == 0:
+                opt = BoxCfg((cfg.var[0], cfg.var[1] // 2, cfg.var[2]))
+                if opt not in seen:
+                    yield opt
+                    seen.add(opt)
+            if (cfg.var[2] % 2) == 0:
+                opt = BoxCfg((cfg.var[0], cfg.var[1], cfg.var[2] // 2))
+                if opt not in seen:
+                    yield opt
+                    seen.add(opt)
+
+    @classmethod
+    def find_best_box(self, xyt_ok: np.array, p_threshold: float) -> Box:
+        cfgs = [ BoxCfg(XYT_BITS) ]
+        best_box, best_box_count = None, 0
+        while best_box == None:
+            for cfg in BoxCfg.subdivided(cfgs):
+                for box in cfg.possible_boxes():
+
+        return best_box
+
 @dataclass(frozen=True)
 class Box:
-    x:      int
-    y:      int
-    t:      int
-    log2_w: int # w = width (X)
-    log2_h: int # h = height (Y)
-    log2_d: int # d = duration (t)
-
-    def ensure_within(self, shape: tuple[int, int, int]) -> "Box":
-        x_size, y_size, t_size = shape
-        x_new, y_new, t_new = (
-            min(max(self.x, 0), x_size - 1),
-            min(max(self.y, 0), y_size - 1),
-            min(max(self.t, 0), t_size - 1),
-        )
-        return Box(
-            x_new, y_new, t_new,
-            min(max(self.log2_w, 0), int(log2(x_size - x_new))),
-            min(max(self.log2_h, 0), int(log2(y_size - y_new))),
-            min(max(self.log2_d, 0), int(log2(t_size - t_new))),
-        )
-
-    def member_coords(self) -> typing.Generator[tuple[int, int, int], None, None]:
-        for x_ in self.offset_by_bits(self.x, self.log2_w):
-            for y_ in self.offset_by_bits(self.y, self.log2_h):
-                for t_ in self.offset_by_bits(self.t, self.log2_d):
-                    yield x_, y_, t_
-    
-    def offset_by_bits(self, x: int, log2_w: int) -> typing.Generator[int, None, None]:
-        for i in range(1 << log2_w):
-            yield x + i
-    
-    def volume(self) -> int:
-        return (1 << self.log2_w) + (1 << self.log2_h) + (1 << self.log2_d)
-    
-    def contains_point(self, qx: int, qy: int, qt: int):
-        x_ok = ((qx - self.x) >= 0) and ((qx - self.x) <= (1 << self.log2_w))
-        y_ok = ((qy - self.y) >= 0) and ((qy - self.y) <= (1 << self.log2_h))
-        t_ok = ((qt - self.t) >= 0) and ((qt - self.t) <= (1 << self.log2_d))
-        return x_ok and y_ok and t_ok
-
-def box_union_contains_point(box_union_of: list[Box], xyt: (int, int, int)):
-    x, y, t = xyt
-    for box in box_union_of:
-        if box.contains_point(x, y, t):
-            return True
-    return False
+    xyt_fixed: tuple[int, int, int]
+    box_cfg: BoxCfg
 
 @dataclass(frozen=True)
 class EncodedChunk:
