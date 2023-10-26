@@ -8,6 +8,10 @@ from qiskit.circuit import Instruction
 
 print("qiskit-imports", end="")
 
+from qiskit_aer import AerSimulator
+
+print(", qiskit-aer-imports", end="")
+
 import numpy as np
 
 from dataclasses import dataclass
@@ -16,8 +20,8 @@ from math import pi, cos, sin, tan, acos, asin, atan, atan2, log, log2, sqrt
 
 print(", misc-imports", end="")
 
-def simulate_quantum_circuit(circuit, shots=1024):
-    simulator = Aer.get_backend("aer_simulator")
+def simulate_quantum_circuit(circuit, shots=1024, method="automatic"):
+    simulator = AerSimulator(method=method)
     compiled_circuit = transpile(circuit, simulator)
     job = simulator.run(compiled_circuit, shots=shots)
     result = job.result()
@@ -405,3 +409,37 @@ sys.stdout.flush()
 main = qc_main()
 print("done.")
 print(f"Uses {main.num_qubits} qubits.")
+
+import time
+method = "extended_stabilizer"
+print(f"Simulating (method=\"{method}\")...", end="")
+sys.stdout.flush()
+start = time.time()
+n_shots = 4000
+simulation_result = simulate_quantum_circuit(main, shots=n_shots, method=method)
+print(f"done in {time.time()-start}s.")
+
+def binstr2dec(s: str):
+    # Yes, this is a mind-bogglingy stupid way to do this
+    # And an unsafe one at that
+    # Hopelessly inefficient too
+    # Unfortunately it's 11 P.M. and I don't care
+    return eval(f'0b{s}')
+
+def get_coords_from_result(result_keys: list[str]) -> (list[int], list[int], list[int]):
+    xs, ys, ts = [], [], []
+    for key in result_keys:
+        t_snd, y_snd, x_snd, t_fst, y_fst, x_fst = key.split()
+        xs.append(binstr2dec(x_fst))
+        ys.append(binstr2dec(y_fst))
+        ts.append(binstr2dec(t_fst))
+        xs.append(binstr2dec(x_snd))
+        ys.append(binstr2dec(y_snd))
+        ts.append(binstr2dec(t_snd) + (1 << bits_t))
+    return xs, ys, ts
+
+result = simulation_result
+proportion_noise_threshold = 0.05
+coords = get_coords_from_result(result.keys())
+
+print(coords)

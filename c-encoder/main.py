@@ -10,7 +10,7 @@ import sys
 
 from constants import *
 
-N_CHUNKS = (7 * LEN_SECONDS) // CHUNK_TIME
+N_CHUNKS = (15 * LEN_SECONDS) // CHUNK_TIME
 
 FRAMES_PATH = lambda n: f"media_frames/{VIDEO_NAME}/frame-{n}.jpg"
 
