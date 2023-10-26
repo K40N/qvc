@@ -37,10 +37,10 @@ def get_least_busy_backend():
         and b.status().operational==True
     ))
 
-def simulate_quantum_circuit(circuit, shots=1024):
+def simulate_quantum_circuit(circuit, shots=1024, method="automatic"):
     simulator = Aer.get_backend("aer_simulator")
     compiled_circuit = transpile(circuit, simulator)
-    job = simulator.run(compiled_circuit, shots=shots)
+    job = simulator.run(compiled_circuit, shots=shots, method=method)
     result = job.result()
     counts = result.get_counts(compiled_circuit)
     return counts
